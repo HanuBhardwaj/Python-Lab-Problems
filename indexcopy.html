@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeriCheck | Fake News Detector</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>📰 Fake News Detector</h1>
+    <p>Paste the news article text below to verify its authenticity.</p>
+    
+    <textarea id="newsInput" placeholder="Enter news headline or content here..."></textarea>
+    
+    <button class="btn" onclick="checkNews()">Verify News</button>
+
+    <div id="result-container">
+        <span id="result-icon" class="icon"></span>
+        <span id="result-text"></span>
+    </div>
+</div>
+
+<script>
+async function checkNews() {
+    const input = document.getElementById('newsInput').value;
+    const container = document.getElementById('result-container');
+    const text = document.getElementById('result-text');
+    const icon = document.getElementById('result-icon');
+
+    if (input.trim() === "") {
+        alert("Please paste some news first!");
+        return;
+    }
+
+    container.style.display = "block";
+
+    try {
+        const response = await fetch("https://unannihilable-aponeurotic-kailani.ngrok-free.dev/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ text: input })
+        });
+
+        const data = await response.json();
+
+        if (data.result.includes("FAKE")) {
+            container.className = "fake";
+            text.innerText = data.result;
+            icon.innerText = "❌";
+        } else {
+            container.className = "real";
+            text.innerText = data.result;
+            icon.innerText = "✅";
+        }
+
+    } catch (error) {
+        text.innerText = "Error connecting to server!";
+        console.error(error);
+    }
+}
+</script>
